@@ -414,6 +414,9 @@ fn convert_filter(project_name: &str, filters: Vec<Filter>) -> Option<api::Filte
                     Filter::LesserThanEqual(name, value) => {
                         (name, Operator::LessThanOrEqual, value)
                     }
+                    Filter::NotEqual(name, value) => (name, Operator::NotEqual, value),
+                    Filter::In(name, value) => (name, Operator::In, value),
+                    Filter::NotIn(name, value) => (name, Operator::NotIn, value),
                 };
 
                 api::Filter {

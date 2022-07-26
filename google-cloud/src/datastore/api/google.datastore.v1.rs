@@ -208,14 +208,20 @@ pub struct EntityResult {
     /// The version of the entity, a strictly positive number that monotonically
     /// increases with changes to the entity.
     ///
-    /// This field is set for
-    /// [`FULL`][google.datastore.v1.EntityResult.ResultType.FULL] entity results.
+    /// This field is set for [`FULL`][google.datastore.v1.EntityResult.ResultType.FULL] entity
+    /// results.
     ///
-    /// For [missing][google.datastore.v1.LookupResponse.missing] entities in
-    /// `LookupResponse`, this is the version of the snapshot that was used to look
-    /// up the entity, and it is always set except for eventually consistent reads.
+    /// For [missing][google.datastore.v1.LookupResponse.missing] entities in `LookupResponse`, this
+    /// is the version of the snapshot that was used to look up the entity, and it
+    /// is always set except for eventually consistent reads.
     #[prost(int64, tag = "4")]
     pub version: i64,
+    /// The time at which the entity was last changed.
+    /// This field is set for [`FULL`][google.datastore.v1.EntityResult.ResultType.FULL] entity
+    /// results.
+    /// If this entity is missing, this field will not be set.
+    #[prost(message, optional, tag = "5")]
+    pub update_time: ::core::option::Option<::prost_types::Timestamp>,
     /// A cursor that points to the position after the result entity.
     /// Set only when the `EntityResult` is part of a `QueryResultBatch` message.
     #[prost(bytes = "vec", tag = "3")]
@@ -358,7 +364,10 @@ pub struct CompositeFilter {
     #[prost(enumeration = "composite_filter::Operator", tag = "1")]
     pub op: i32,
     /// The list of filters to combine.
-    /// Must contain at least one filter.
+    ///
+    /// Requires:
+    ///
+    /// * At least one filter is present.
     #[prost(message, repeated, tag = "2")]
     pub filters: ::prost::alloc::vec::Vec<Filter>,
 }
@@ -395,18 +404,60 @@ pub mod property_filter {
     pub enum Operator {
         /// Unspecified. This value must not be used.
         Unspecified = 0,
-        /// Less than.
+        /// The given `property` is less than the given `value`.
+        ///
+        /// Requires:
+        ///
+        /// * That `property` comes first in `order_by`.
         LessThan = 1,
-        /// Less than or equal.
+        /// The given `property` is less than or equal to the given `value`.
+        ///
+        /// Requires:
+        ///
+        /// * That `property` comes first in `order_by`.
         LessThanOrEqual = 2,
-        /// Greater than.
+        /// The given `property` is greater than the given `value`.
+        ///
+        /// Requires:
+        ///
+        /// * That `property` comes first in `order_by`.
         GreaterThan = 3,
-        /// Greater than or equal.
+        /// The given `property` is greater than or equal to the given `value`.
+        ///
+        /// Requires:
+        ///
+        /// * That `property` comes first in `order_by`.
         GreaterThanOrEqual = 4,
-        /// Equal.
+        /// The given `property` is equal to the given `value`.
         Equal = 5,
-        /// Has ancestor.
+        /// The given `property` is equal to at least one value in the given array.
+        ///
+        /// Requires:
+        ///
+        /// * That `value` is a non-empty `ArrayValue` with at most 10 values.
+        /// * No other `IN` or `NOT_IN` is in the same query.
+        In = 6,
+        /// The given `property` is not equal to the given `value`.
+        ///
+        /// Requires:
+        ///
+        /// * No other `NOT_EQUAL` or `NOT_IN` is in the same query.
+        /// * That `property` comes first in the `order_by`.
+        NotEqual = 9,
+        /// Limit the result set to the given entity and its descendants.
+        ///
+        /// Requires:
+        ///
+        /// * That `value` is an entity key.
         HasAncestor = 11,
+        /// The value of the `property` is not in the given array.
+        ///
+        /// Requires:
+        ///
+        /// * That `value` is a non-empty `ArrayValue` with at most 10 values.
+        /// * No other `IN`, `NOT_IN`, `NOT_EQUAL` is in the same query.
+        /// * That `field` comes first in the `order_by`.
+        NotIn = 13,
     }
 }
 /// A [GQL
@@ -493,6 +544,18 @@ pub struct QueryResultBatch {
     /// The value will be zero for eventually consistent queries.
     #[prost(int64, tag = "7")]
     pub snapshot_version: i64,
+    /// Read timestamp this batch was returned from.
+    /// This applies to the range of results from the query's `start_cursor` (or
+    /// the beginning of the query if no cursor was given) to this batch's
+    /// `end_cursor` (not the query's `end_cursor`).
+    ///
+    /// In a single transaction, subsequent query result batches for the same query
+    /// can have a greater timestamp. Each batch's read timestamp
+    /// is valid for all preceding batches.
+    /// This value will not be set for eventually consistent queries in Cloud
+    /// Datastore.
+    #[prost(message, optional, tag = "8")]
+    pub read_time: ::core::option::Option<::prost_types::Timestamp>,
 }
 /// Nested message and enum types in `QueryResultBatch`.
 pub mod query_result_batch {

@@ -22,6 +22,12 @@ pub enum Filter {
     GreaterThanOrEqual(String, Value),
     /// Lesser-than-or-equal filter (<=).
     LesserThanEqual(String, Value),
+    /// Inequality filter (!=).
+    NotEqual(String, Value),
+    /// In-list filter (IN).
+    In(String, Value),
+    /// Not-in-list filter (NOT IN).
+    NotIn(String, Value),
 }
 
 /// Represents a Datastore query.
