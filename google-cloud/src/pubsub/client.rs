@@ -21,6 +21,19 @@ pub struct Client {
     pub(crate) token_manager: Arc<Mutex<TokenManager>>,
 }
 
+struct ClientConfiguration {
+    pub endpoint: String,
+}
+
+impl ClientConfiguration {
+    pub fn new() -> ClientConfiguration {
+        ClientConfiguration {
+            endpoint:  env::var("PUBSUB_EMULATOR_HOST")
+                .unwrap_or_else(|_| Client::ENDPOINT.to_string()),
+        }
+    }
+}
+
 impl Client {
     pub(crate) const DOMAIN_NAME: &'static str = "pubsub.googleapis.com";
     pub(crate) const ENDPOINT: &'static str = "https://pubsub.googleapis.com";
@@ -56,12 +69,16 @@ impl Client {
         project_name: impl Into<String>,
         creds: ApplicationCredentials,
     ) -> Result<Client, Error> {
-        let tls_config = ClientTlsConfig::new()
-            .ca_certificate(Certificate::from_pem(TLS_CERTS))
-            .domain_name(Client::DOMAIN_NAME);
+        let client_config = ClientConfiguration::new();
+        let mut channel = Channel::from_static(client_config.endpoint.as_str());
+        if client_config.endpoint.starts_with("https://") {
+            let tls_config = ClientTlsConfig::new()
+                .ca_certificate(Certificate::from_pem(TLS_CERTS))
+                .domain_name(Client::DOMAIN_NAME);
+            channel = channel.tls_config(tls_config)?
+        }
 
-        let channel = Channel::from_static(Client::ENDPOINT)
-            .tls_config(tls_config)?
+        let channel = channel
             .connect()
             .await?;
 
