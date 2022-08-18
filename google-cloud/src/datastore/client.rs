@@ -1,4 +1,3 @@
-use hyper::client::connect::Connect;
 use std::borrow::Borrow;
 use std::collections::HashMap;
 use std::env;

@@ -16,7 +16,7 @@ const AUTH_ENDPOINT: &str = "https://oauth2.googleapis.com/token";
 
 /// Represents application credentials for accessing Google Cloud Platform services.
 #[allow(missing_docs)]
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ApplicationCredentials {
     #[serde(rename = "type")]
     pub cred_type: String,

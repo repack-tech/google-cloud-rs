@@ -1,7 +1,7 @@
 use crate::datastore::{Key, Value};
 
 /// Represents Datastore query result orderings.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Order {
     /// Ascendent ordering.
     Asc(String),
