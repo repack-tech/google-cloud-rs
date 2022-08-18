@@ -1,6 +1,7 @@
 use std::env;
 use std::fs::File;
 use std::sync::Arc;
+use hyper::client::connect::Connect;
 
 use tokio::sync::Mutex;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig};
@@ -70,7 +71,7 @@ impl Client {
         creds: ApplicationCredentials,
     ) -> Result<Client, Error> {
         let client_config = ClientConfiguration::new();
-        let mut channel = Channel::from_static(client_config.endpoint.as_str());
+        let mut channel = Channel::from_shared(client_config.endpoint.clone()).unwrap();
         if client_config.endpoint.starts_with("https://") {
             let tls_config = ClientTlsConfig::new()
                 .ca_certificate(Certificate::from_pem(TLS_CERTS))
