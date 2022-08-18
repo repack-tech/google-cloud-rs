@@ -1,7 +1,7 @@
+use hyper::client::connect::Connect;
 use std::env;
 use std::fs::File;
 use std::sync::Arc;
-use hyper::client::connect::Connect;
 
 use tokio::sync::Mutex;
 use tonic::transport::{Certificate, Channel, ClientTlsConfig};
