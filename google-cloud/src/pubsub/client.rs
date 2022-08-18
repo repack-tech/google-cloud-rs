@@ -28,7 +28,7 @@ struct ClientConfiguration {
 impl ClientConfiguration {
     pub fn new() -> ClientConfiguration {
         ClientConfiguration {
-            endpoint:  env::var("PUBSUB_EMULATOR_HOST")
+            endpoint: env::var("PUBSUB_EMULATOR_HOST")
                 .unwrap_or_else(|_| Client::ENDPOINT.to_string()),
         }
     }
@@ -78,9 +78,7 @@ impl Client {
             channel = channel.tls_config(tls_config)?
         }
 
-        let channel = channel
-            .connect()
-            .await?;
+        let channel = channel.connect().await?;
 
         Ok(Client {
             project_name: project_name.into(),
