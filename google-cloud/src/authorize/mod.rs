@@ -74,6 +74,10 @@ impl TokenManager {
     }
 
     pub(crate) async fn token(&mut self) -> Result<String, AuthError> {
+        if self.creds.token_uri == "EMULATOR" {
+            return Ok("Bearer EMULATOR".to_string());
+        }
+
         let hour = chrono::Duration::minutes(45);
         let current_time = chrono::Utc::now();
         match self.current_token {
