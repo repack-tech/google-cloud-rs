@@ -67,9 +67,13 @@ impl TokenManager {
     pub(crate) fn new(creds: ApplicationCredentials, scopes: &[&str]) -> TokenManager {
         TokenManager {
             creds,
-            client: Client::builder().build::<_, hyper::Body>(HttpsConnectorBuilder::new()
-                .with_native_roots().https_only()
-                .enable_http1().build()),
+            client: Client::builder().build::<_, hyper::Body>(
+                HttpsConnectorBuilder::new()
+                    .with_native_roots()
+                    .https_only()
+                    .enable_http1()
+                    .build(),
+            ),
             scopes: scopes.join(" "),
             current_token: None,
         }
